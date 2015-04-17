@@ -12,10 +12,6 @@ dt=`date '+%Y%m%d-%H%M%S'`
 logfile="install_$dt.log"
 answerfile="mystack.txt"
 
-function pre_install() {
-    yum install -y net-tools | tee -a $logfile 
-}
-
 function add_hostname() {
     localip=`ifconfig | grep -v 127.0.0.1 | grep inet | grep -v inet6 | awk '{print $2}' | sed 's/addr://'`
     hostname=`hostname`
@@ -23,7 +19,12 @@ function add_hostname() {
     echo "$localip $hostname" >> /etc/hosts
 }
 
-function set_parameter() {
+function pre_install() {
+    yum install -y net-tools | tee -a $logfile 
+    add_hostname
+}
+
+function modify_answerfile() {
     sed -i "s#^$1=.*#$1=$2#" $answerfile
 }
 
@@ -38,23 +39,23 @@ function install_openstack() {
 
     nic=`ifconfig | grep flags | grep -v lo: | awk -F: '{print $1}'`
 
-    set_parameter CONFIG_NEUTRON_INSTALL n
-    set_parameter CONFIG_SWIFT_INSTALL n
-    set_parameter CONFIG_CEILOMETER_INSTALL n
-    set_parameter CONFIG_NAGIOS_INSTALL n
-    set_parameter CONFIG_VMWARE_BACKEND y
-    set_parameter CONFIG_VCENTER_HOST $VCENTER_HOST
-    set_parameter CONFIG_VCENTER_USER $VCENTER_USER
-    set_parameter CONFIG_VCENTER_PASSWORD $VCENTER_PASSWORD
-    set_parameter CONFIG_VCENTER_CLUSTER_NAME $VCENTER_CLUSTER
-    set_parameter CONFIG_CINDER_BACKEND vmdk
-    set_parameter CONFIG_NOVA_COMPUTE_PRIVIF $nic
-    set_parameter CONFIG_NOVA_NETWORK_PRIVIF $nic
-    set_parameter CONFIG_NOVA_NETWORK_PUBIF $nic
-    set_parameter CONFIG_NOVA_NETWORK_FIXEDRANGE $FIXED_IP_RANGE
-    set_parameter CONFIG_NOVA_NETWORK_FLOATRANGE $FLOAT_IP_RANGE
-    set_parameter CONFIG_KEYSTONE_ADMIN_PW $ADMIN_PASSWORD
-    set_parameter CONFIG_PROVISION_DEMO n
+    modify_answerfile CONFIG_NEUTRON_INSTALL n
+    modify_answerfile CONFIG_SWIFT_INSTALL n
+    modify_answerfile CONFIG_CEILOMETER_INSTALL n
+    modify_answerfile CONFIG_NAGIOS_INSTALL n
+    modify_answerfile CONFIG_VMWARE_BACKEND y
+    modify_answerfile CONFIG_VCENTER_HOST $VCENTER_HOST
+    modify_answerfile CONFIG_VCENTER_USER $VCENTER_USER
+    modify_answerfile CONFIG_VCENTER_PASSWORD $VCENTER_PASSWORD
+    modify_answerfile CONFIG_VCENTER_CLUSTER_NAME $VCENTER_CLUSTER
+    modify_answerfile CONFIG_CINDER_BACKEND vmdk
+    modify_answerfile CONFIG_NOVA_COMPUTE_PRIVIF $nic
+    modify_answerfile CONFIG_NOVA_NETWORK_PRIVIF $nic
+    modify_answerfile CONFIG_NOVA_NETWORK_PUBIF $nic
+    modify_answerfile CONFIG_NOVA_NETWORK_FIXEDRANGE $FIXED_IP_RANGE
+    modify_answerfile CONFIG_NOVA_NETWORK_FLOATRANGE $FLOAT_IP_RANGE
+    modify_answerfile CONFIG_KEYSTONE_ADMIN_PW $ADMIN_PASSWORD
+    modify_answerfile CONFIG_PROVISION_DEMO n
 
     packstack --answer-file=$answerfile
 
@@ -67,13 +68,24 @@ function install_openstack() {
 }
 
 function post_install() {
-    sed -i "s#^public_interface=.*#public_interface=br100#" /etc/nova/nova.conf
+    openstack-config --set /etc/nova/nova.conf DEFAULT public_interface br100
     systemctl restart openstack-nova-compute
     pkill -9 dnsmasq
     systemctl restart openstack-nova-network
+
+    openstack-config --set /etc/nova/nova.conf DEFAULT notification_driver messaging
+    openstack-config --set /etc/nova/nova.conf DEFAULT notify_on_state_change vm_and_task_state
+    systemctl restart openstack-nova-api
+
+    openstack-config --set /etc/cinder/cinder.conf DEFAULT notification_driver messaging
+    openstack-config --set /etc/cinder/cinder.conf DEFAULT control_exchange cinder
+    systemctl restart openstack-cinder-api
+
+    openstack-config --set /etc/glance/glance-api.conf DEFAULT notification_driver messaging
+    openstack-config --set /etc/glance/glance-api.conf DEFAULT control_exchange glance
+    systemctl restart openstack-glance-api
 }
 
 pre_install
-add_hostname
 install_openstack
 post_install
