@@ -57,10 +57,10 @@ function install_openstack() {
 
     packstack --answer-file=$answerfile
 
-    ./import_image.sh       # Import demo image
-
     echo ". ~/keystonerc_admin" > ~/.bash_profile
     . ~/.bash_profile
+
+    ./import_image.sh       # Import demo image
 
     popd >/dev/null
 }
