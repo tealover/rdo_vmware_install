@@ -10,7 +10,6 @@ FLOAT_IP_RANGE="192.168.206.224/27"
 dt=`date '+%Y%m%d-%H%M%S'`
 logfile="install_$dt.log"
 answerfile="mystack.txt"
-nic=`ifconfig | grep flags | grep -v lo: | awk -F: '{print $1}'`
 
 function pre_install() {
     yum install -y net-tools | tee -a $logfile 
@@ -36,6 +35,8 @@ function install_openstack() {
         cp -n $answerfile ${answerfile}.bak
     fi
 
+    nic=`ifconfig | grep flags | grep -v lo: | awk -F: '{print $1}'`
+
     set_parameter CONFIG_NEUTRON_INSTALL n
     set_parameter CONFIG_SWIFT_INSTALL n
     set_parameter CONFIG_CEILOMETER_INSTALL n
@@ -52,7 +53,7 @@ function install_openstack() {
     set_parameter CONFIG_NOVA_NETWORK_FIXEDRANGE $FIXED_IP_RANGE
     set_parameter CONFIG_NOVA_NETWORK_FLOATRANGE $FLOAT_IP_RANGE
 
-    #packstack --answer-file=$answerfile
+    packstack --answer-file=$answerfile
     popd >/dev/null
 }
 
