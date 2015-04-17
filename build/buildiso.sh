@@ -15,11 +15,12 @@ ISODIR=../iso
 rm -rf $ISODIR/repodata/
 /bin/cp comps.xml $ISODIR
 createrepo -g comps.xml $ISODIR
-cp install.sh $ISODIR
+rm -rf $ISODIR/rdo
+cp -r rdo $ISODIR
 
 rm -rf $ISODIR/ks
 mkdir -p $ISODIR/ks
 /bin/cp ks.cfg $ISODIR/ks
 /bin/cp isolinux.cfg $ISODIR/isolinux
 
-mkisofs -o centos7.iso -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -R -J -V "centos7_install" -v -T $ISODIR
+mkisofs -o openstack.iso -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -R -J -V "centos7_install" -v -T $ISODIR
