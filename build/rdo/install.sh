@@ -54,7 +54,6 @@ function install_openstack() {
     set_parameter CONFIG_NOVA_NETWORK_FIXEDRANGE $FIXED_IP_RANGE
     set_parameter CONFIG_NOVA_NETWORK_FLOATRANGE $FLOAT_IP_RANGE
     set_parameter CONFIG_KEYSTONE_ADMIN_PW $ADMIN_PASSWORD
-    set_parameter CONFIG_PROVISION_DEMO n
 
     packstack --answer-file=$answerfile
 
