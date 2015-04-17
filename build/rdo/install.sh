@@ -5,7 +5,7 @@ VCENTER_USER=root
 VCENTER_PASSWORD=vmware
 VCENTER_CLUSTER=cluster01
 FIXED_IP_RANGE="10.0.0.0/24"
-FLOAT_IP_RANGE="192.168.206.224/27"
+FLOAT_IP_RANGE="192.168.206.224/28"
 
 dt=`date '+%Y%m%d-%H%M%S'`
 logfile="install_$dt.log"
