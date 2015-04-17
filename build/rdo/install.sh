@@ -1,11 +1,12 @@
 #!/bin/bash
 
-VCENTER_HOST=192.168.206.131
+VCENTER_HOST=172.16.71.201
 VCENTER_USER=root
 VCENTER_PASSWORD=vmware
 VCENTER_CLUSTER=cluster01
 FIXED_IP_RANGE="10.0.0.0/24"
-FLOAT_IP_RANGE="192.168.206.224/28"
+FLOAT_IP_RANGE="172.16.71.224/28"
+ADMIN_PASSWORD="admin"
 
 dt=`date '+%Y%m%d-%H%M%S'`
 logfile="install_$dt.log"
@@ -52,8 +53,15 @@ function install_openstack() {
     set_parameter CONFIG_NOVA_NETWORK_PRIVIF $nic
     set_parameter CONFIG_NOVA_NETWORK_FIXEDRANGE $FIXED_IP_RANGE
     set_parameter CONFIG_NOVA_NETWORK_FLOATRANGE $FLOAT_IP_RANGE
+    set_parameter CONFIG_KEYSTONE_ADMIN_PW $ADMIN_PASSWORD
 
     packstack --answer-file=$answerfile
+
+    ./import_image.sh       # Import demo image
+
+    echo ". ~/keystonerc_admin" > ~/.bash_profile
+    . ~/.bash_profile
+
     popd >/dev/null
 }
 
