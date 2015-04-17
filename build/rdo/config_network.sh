@@ -86,4 +86,6 @@ EOF
     chmod u+x /etc/rc.local
 }
 
+yum install -y net-tools
+yum install -y bridge-utils
 config_network
