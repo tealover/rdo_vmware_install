@@ -81,14 +81,15 @@ function post_install() {
 
     openstack-config --set /etc/nova/nova.conf DEFAULT notification_driver messaging
     openstack-config --set /etc/nova/nova.conf DEFAULT notify_on_state_change vm_and_task_state
+    openstack-config --set /etc/nova/nova.conf DEFAULT control_exchange openstack
     systemctl restart openstack-nova-api
 
     openstack-config --set /etc/cinder/cinder.conf DEFAULT notification_driver messaging
-    openstack-config --set /etc/cinder/cinder.conf DEFAULT control_exchange cinder
+    openstack-config --set /etc/cinder/cinder.conf DEFAULT control_exchange openstack
     systemctl restart openstack-cinder-api
 
     openstack-config --set /etc/glance/glance-api.conf DEFAULT notification_driver messaging
-    openstack-config --set /etc/glance/glance-api.conf DEFAULT control_exchange glance
+    openstack-config --set /etc/glance/glance-api.conf DEFAULT control_exchange openstack
     systemctl restart openstack-glance-api
 }
 
