@@ -69,6 +69,7 @@ function install_openstack() {
 
 function post_install() {
     openstack-config --set /etc/nova/nova.conf DEFAULT public_interface br100
+    openstack-config --set /etc/nova/nova.conf DEFAULT flat_interface $nic
     systemctl restart openstack-nova-compute
     pkill -9 dnsmasq
     systemctl restart openstack-nova-network
