@@ -73,8 +73,11 @@ function install_openstack() {
     popd >/dev/null
 }
 
+# Modify openstack configurations
 function post_install() {
+    # nova
     openstack-config --set /etc/nova/nova.conf DEFAULT public_interface br100
+    openstack-config --set /etc/nova/nova.conf DEFAULT compute_monitors ComputeDriverCPUMonitor
     systemctl restart openstack-nova-compute
     systemctl restart openstack-nova-scheduler
     systemctl restart openstack-nova-conductor
@@ -83,17 +86,20 @@ function post_install() {
 
     openstack-config --set /etc/nova/nova.conf DEFAULT notification_driver messaging
     openstack-config --set /etc/nova/nova.conf DEFAULT notify_on_state_change vm_and_task_state
-    openstack-config --set /etc/nova/nova.conf DEFAULT control_exchange openstack
+    openstack-config --set /etc/nova/nova.conf DEFAULT control_exchange nova
     systemctl restart openstack-nova-api
 
+    # cinder
     openstack-config --set /etc/cinder/cinder.conf DEFAULT notification_driver messaging
-    openstack-config --set /etc/cinder/cinder.conf DEFAULT control_exchange openstack
+    openstack-config --set /etc/cinder/cinder.conf DEFAULT control_exchange cinder
     systemctl restart openstack-cinder-api
 
+    # glance
     openstack-config --set /etc/glance/glance-api.conf DEFAULT notification_driver messaging
-    openstack-config --set /etc/glance/glance-api.conf DEFAULT control_exchange openstack
+    openstack-config --set /etc/glance/glance-api.conf DEFAULT control_exchange glance
     systemctl restart openstack-glance-api
 
+    # ceilometer
     openstack-config --set /etc/ceilometer/ceilometer.conf DEFAULT hypervisor_inspector vsphere
     openstack-config --set /etc/ceilometer/ceilometer.conf vmware host_ip $VCENTER_HOST
     openstack-config --set /etc/ceilometer/ceilometer.conf vmware host_username $VCENTER_USER
