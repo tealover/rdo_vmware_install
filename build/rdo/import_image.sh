@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ "$1" -eq "vmware" ]; then
+if [ "$1" = "vmware" ]; then
     glance image-create \
         --name cirros \
         --disk-format vmdk \
