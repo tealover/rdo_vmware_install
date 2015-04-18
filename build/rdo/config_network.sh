@@ -57,35 +57,19 @@ function config_network() {
         fi
     done
 
-    cat > /etc/sysconfig/network-scripts/ifcfg-br100 <<EOF
-DEVICE=br100 
-NM_CONTROLLED="no" 
-ONBOOT=yes 
-TYPE=Bridge 
-BOOTPROTO=static 
-IPADDR=$IPADDR 
-NETMASK=$NETMASK 
-GATEWAY=$GATEWAY
-DNS1=8.8.8.8
-PROMISC=yes
-EOF
-    
     cat > /etc/sysconfig/network-scripts/ifcfg-$default_interface <<EOF
 DEVICE="$default_interface" 
 TYPE=Ethernet 
 ONBOOT=yes 
 NM_CONTROLLED=no 
-BRIDGE=br100 
+BOOTPROTO=static
+IPADDR=$IPADDR
+NETMASK=$NETMASK
+GATEWAY=$GATEWAY
+DNS1=8.8.8.8
 EOF
 
     systemctl restart network
-    ip link set br100 promisc on
-
-    sed -i "/ip link.*/d" /etc/rc.local
-    echo "ip link set br100 promisc on" >> /etc/rc.local
-    chmod u+x /etc/rc.local
 }
 
-yum install -y net-tools
-yum install -y bridge-utils
 config_network
