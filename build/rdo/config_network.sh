@@ -57,19 +57,18 @@ function config_network() {
         fi
     done
 
-    cat > /etc/sysconfig/network-scripts/ifcfg-$default_interface <<EOF
-DEVICE="$default_interface" 
-TYPE=Ethernet 
-ONBOOT=yes 
-NM_CONTROLLED=no 
+    sed -i "/^BOOTPROTO=.*/d" /etc/sysconfig/network-scripts/ifcfg-$default_interface
+    cat >> /etc/sysconfig/network-scripts/ifcfg-$default_interface <<EOF
 BOOTPROTO=static
 IPADDR=$IPADDR
 NETMASK=$NETMASK
 GATEWAY=$GATEWAY
+DEVICE="$default_interface" 
 DNS1=8.8.8.8
 EOF
 
     systemctl restart network
 }
 
+yum install -y net-tools
 config_network
