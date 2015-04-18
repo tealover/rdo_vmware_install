@@ -71,4 +71,6 @@ EOF
 }
 
 yum install -y net-tools
+systemctl disable NetworkManager
+systemctl stop NetworkManager
 config_network

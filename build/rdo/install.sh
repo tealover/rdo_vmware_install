@@ -93,6 +93,14 @@ function post_install() {
     openstack-config --set /etc/glance/glance-api.conf DEFAULT notification_driver messaging
     openstack-config --set /etc/glance/glance-api.conf DEFAULT control_exchange openstack
     systemctl restart openstack-glance-api
+
+    openstack-config --set /etc/ceilometer/ceilometer.conf DEFAULT hypervisor_inspector vsphere
+    openstack-config --set /etc/ceilometer/ceilometer.conf vmware host_ip $VCENTER_HOST
+    openstack-config --set /etc/ceilometer/ceilometer.conf vmware host_username $VCENTER_USER
+    openstack-config --set /etc/ceilometer/ceilometer.conf vmware host_password $VCENTER_PASSWORD
+    systemctl restart openstack-ceilometer-central
+    systemctl restart openstack-ceilometer-collector
+    systemctl restart openstack-ceilometer-compute
 }
 
 function apply_patches() {
