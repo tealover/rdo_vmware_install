@@ -43,17 +43,21 @@ function install_openstack() {
     modify_answerfile CONFIG_SWIFT_INSTALL n
     modify_answerfile CONFIG_CEILOMETER_INSTALL n
     modify_answerfile CONFIG_NAGIOS_INSTALL n
+    modify_answerfile CONFIG_CEILOMETER_INSTALL y
+
     modify_answerfile CONFIG_VMWARE_BACKEND y
     modify_answerfile CONFIG_VCENTER_HOST $VCENTER_HOST
     modify_answerfile CONFIG_VCENTER_USER $VCENTER_USER
     modify_answerfile CONFIG_VCENTER_PASSWORD $VCENTER_PASSWORD
     modify_answerfile CONFIG_VCENTER_CLUSTER_NAME $VCENTER_CLUSTER
     modify_answerfile CONFIG_CINDER_BACKEND vmdk
+
     modify_answerfile CONFIG_NOVA_COMPUTE_PRIVIF $nic
     modify_answerfile CONFIG_NOVA_NETWORK_PRIVIF $nic
     modify_answerfile CONFIG_NOVA_NETWORK_PUBIF $nic
     modify_answerfile CONFIG_NOVA_NETWORK_FIXEDRANGE $FIXED_IP_RANGE
     modify_answerfile CONFIG_NOVA_NETWORK_FLOATRANGE $FLOAT_IP_RANGE
+
     modify_answerfile CONFIG_KEYSTONE_ADMIN_PW $ADMIN_PASSWORD
     modify_answerfile CONFIG_PROVISION_DEMO n
 
@@ -62,7 +66,7 @@ function install_openstack() {
     echo ". ~/keystonerc_admin" > ~/.bash_profile
     . ~/.bash_profile
 
-    ./import_image.sh       # Import demo image
+    ./import_image.sh vmware       # Import demo image
 
     popd >/dev/null
 }

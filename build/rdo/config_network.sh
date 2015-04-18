@@ -41,7 +41,7 @@ function config_network() {
         get_input 'Input hostname' HOSTNAME $hostname
         get_input 'Select network card' INTERFACE $default_interface
         get_input 'Input IP address' IPADDR $ip
-	get_input 'Input netmask' NETMASK $netmask
+	    get_input 'Input netmask' NETMASK $netmask
         get_input 'Input gateway' GATEWAY $gateway
 
         echo -e "\nInput parameters:"
