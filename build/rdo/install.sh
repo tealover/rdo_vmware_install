@@ -39,6 +39,8 @@ function install_openstack() {
 
     nic=`ifconfig | grep flags | grep -v lo: | awk -F: '{print $1}'`
 
+    sed -i "s#\$use_epel = .*#\$use_epel = y#" /usr/lib/python2.7/site-packages/packstack/puppet/templates/mongodb.pp
+
     modify_answerfile CONFIG_NEUTRON_INSTALL n
     modify_answerfile CONFIG_SWIFT_INSTALL n
     modify_answerfile CONFIG_CEILOMETER_INSTALL n
