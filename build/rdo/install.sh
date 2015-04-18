@@ -4,6 +4,10 @@ VCENTER_HOST=172.16.71.201
 VCENTER_USER=root
 VCENTER_PASSWORD=vmware
 VCENTER_CLUSTER=cluster01
+GLANCE_DATASTORE=os_datastore02
+GLANCE_IMAGE_PATH=/openstack_glance
+GLANCE_DATACENTER=dc01
+
 FIXED_IP_RANGE="10.0.0.0/24"
 FLOAT_IP_RANGE="172.16.71.224/28"
 ADMIN_PASSWORD="admin"
@@ -97,7 +101,16 @@ function post_install() {
     # glance
     openstack-config --set /etc/glance/glance-api.conf DEFAULT notification_driver messaging
     openstack-config --set /etc/glance/glance-api.conf DEFAULT control_exchange glance
+    openstack-config --set /etc/glance/glance-api.conf DEFAULT default_store vsphere
+    openstack-config --set /etc/glance/glance-api.conf glance_store vmware_server_host $VCENTER_HOST
+    openstack-config --set /etc/glance/glance-api.conf glance_store vmware_server_username $VCENTER_USER
+    openstack-config --set /etc/glance/glance-api.conf glance_store vmware_server_password $VCENTER_PASSWORD
+    openstack-config --set /etc/glance/glance-api.conf glance_store vmware_datacenter_path $GLANCE_DATACENTER
+    openstack-config --set /etc/glance/glance-api.conf glance_store vmware_datastore_name $GLANCE_DATASTORE
+    openstack-config --set /etc/glance/glance-api.conf glance_store vmware_store_image_dir $GLANCE_IMAGE_PATH
+    openstack-config --set /etc/glance/glance-api.conf glance_store stores glance.store.vmware_datastore.Store
     systemctl restart openstack-glance-api
+    systemctl restart openstack-glance-registry
 
     # ceilometer
     openstack-config --set /etc/ceilometer/ceilometer.conf DEFAULT hypervisor_inspector vsphere
