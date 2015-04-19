@@ -71,9 +71,6 @@ function install_openstack() {
 
     echo ". ~/keystonerc_admin" > ~/.bash_profile
     . ~/.bash_profile
-
-    ./import_image.sh vmware       # Import demo image
-
     popd >/dev/null
 }
 
@@ -129,7 +126,14 @@ function apply_patches() {
     systemctl restart openstack-nova-network
 }
 
+function import_image() {
+    pushd ~/rdo >/dev/null
+    ./import_image.sh vmware       # Import demo image
+    popd >/dev/null
+}
+
 pre_install
 install_openstack
 post_install
 apply_patches
+import_image
