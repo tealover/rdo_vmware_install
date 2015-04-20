@@ -1,16 +1,20 @@
 #!/bin/bash
 
-VCENTER_HOST=172.16.71.201
-VCENTER_USER=root
-VCENTER_PASSWORD=vmware
+VCENTER_HOST=192.168.145.20
+VCENTER_USER=administrator@vsphere.local
+VCENTER_PASSWORD=Atom170!
 GLANCE_DATACENTER=dc01
-VCENTER_CLUSTER=cluster01
-GLANCE_DATASTORE=os_datastore02
+VCENTER_CLUSTER=ccluster
+GLANCE_DATASTORE=share01
 GLANCE_IMAGE_PATH=/openstack_glance
 
-FIXED_IP_RANGE="10.0.0.0/24"
-FLOAT_IP_RANGE="172.16.71.224/28"
+FIXED_IP_RANGE="10.0.0.0/16"
+FLOAT_IP_RANGE="192.168.145.224/28"
 ADMIN_PASSWORD="admin"
+
+USE_VLAN="yes"
+VLAN_START=101
+VLAN_NUM=10
 
 dt=`date '+%Y%m%d-%H%M%S'`
 logfile="install_$dt.log"
@@ -43,6 +47,7 @@ function install_openstack() {
 
     nic=`ifconfig | grep flags | grep -v lo: | awk -F: '{print $1}'`
 
+    sed -i "/  pidfilepath => .*/d" /usr/lib/python2.7/site-packages/packstack/puppet/templates/mongodb.pp
     sed -i "s#config     => \$config_file,#config     => \$config_file,\n  pidfilepath => '/var/run/mongodb/mongodb.pid',#" /usr/lib/python2.7/site-packages/packstack/puppet/templates/mongodb.pp
 
     modify_answerfile CONFIG_NEUTRON_INSTALL n
@@ -67,6 +72,12 @@ function install_openstack() {
     modify_answerfile CONFIG_KEYSTONE_ADMIN_PW $ADMIN_PASSWORD
     modify_answerfile CONFIG_PROVISION_DEMO n
 
+    if [ "$USE_VLAN" = "yes" ]; then
+        modify_answerfile CONFIG_NOVA_NETWORK_MANAGER nova.network.manager.VlanManager
+        modify_answerfile CONFIG_NOVA_NETWORK_VLAN_START $VLAN_START
+        modify_answerfile CONFIG_NOVA_NETWORK_NUMBER $VLAN_NUM
+    fi
+
     packstack --answer-file=$answerfile
 
     echo ". ~/keystonerc_admin" > ~/.bash_profile
@@ -77,7 +88,6 @@ function install_openstack() {
 # Modify openstack configurations
 function post_install() {
     # nova
-    openstack-config --set /etc/nova/nova.conf DEFAULT public_interface br100
     openstack-config --set /etc/nova/nova.conf DEFAULT compute_monitors ComputeDriverCPUMonitor
     systemctl restart openstack-nova-compute
     systemctl restart openstack-nova-scheduler
