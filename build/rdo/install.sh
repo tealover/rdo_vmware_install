@@ -12,7 +12,7 @@ FIXED_IP_RANGE="10.0.0.0/16"
 FLOAT_IP_RANGE="172.16.71.224/28"
 ADMIN_PASSWORD="admin"
 
-USE_VLAN="yes"
+USE_VLAN="no"
 VLAN_START=101
 VLAN_NUM=10
 
@@ -127,6 +127,10 @@ function post_install() {
     systemctl restart openstack-ceilometer-central
     systemctl restart openstack-ceilometer-collector
     systemctl restart openstack-ceilometer-compute
+
+    # VMs can connect to internet
+    echo "iptables -t nat -I POSTROUTING -s $FIXED_IP_RANGE ! -d $FIXED_IP_RANGE -j MASQUERADE" >> /etc/rc.local
+    chmod +x /etc/rc.d/rc.local
 }
 
 function apply_patches() {
