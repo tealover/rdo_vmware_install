@@ -7,6 +7,7 @@ GLANCE_DATACENTER=dc01
 VCENTER_CLUSTER=cluster01
 GLANCE_DATASTORE=os_datastore02
 GLANCE_IMAGE_PATH=/openstack_glance
+OPENSTACK_NIC=ens224
 
 FIXED_IP_RANGE="10.0.0.0/16"
 FLOAT_IP_RANGE="172.16.71.224/28"
@@ -15,6 +16,7 @@ ADMIN_PASSWORD="admin"
 USE_VLAN="no"
 VLAN_START=101
 VLAN_NUM=10
+VMWARE_VLAN_INTERFACE=vmnic1
 
 dt=`date '+%Y%m%d-%H%M%S'`
 logfile="install_$dt.log"
@@ -45,7 +47,11 @@ function install_openstack() {
         cp -n $answerfile ${answerfile}.bak
     fi
 
-    nic=`ifconfig | grep flags | grep -v lo: | awk -F: '{print $1}'`
+    if [ -n "$OPENSTACK_NIC" ]; then
+        nic=$OPENSTACK_NIC
+    else
+        nic=`ifconfig | grep flags | grep -v lo: | awk -F: '{print $1}'`
+    fi
 
     sed -i "/  pidfilepath => .*/d" /usr/lib/python2.7/site-packages/packstack/puppet/templates/mongodb.pp
     sed -i "s#config     => \$config_file,#config     => \$config_file,\n  pidfilepath => '/var/run/mongodb/mongodb.pid',#" /usr/lib/python2.7/site-packages/packstack/puppet/templates/mongodb.pp
@@ -89,11 +95,15 @@ function install_openstack() {
 function post_install() {
     # nova
     openstack-config --set /etc/nova/nova.conf DEFAULT compute_monitors ComputeDriverCPUMonitor
+    if [ "$USE_VLAN" = "yes" ]; then
+        openstack-config --set /etc/nova/nova.conf vmware vlan_interface $VMWARE_VLAN_INTERFACE
+    fi
     systemctl restart openstack-nova-compute
     systemctl restart openstack-nova-scheduler
     systemctl restart openstack-nova-conductor
     pkill -9 dnsmasq
     systemctl restart openstack-nova-network
+    systemctl restart openstack-nova-compute
 
     openstack-config --set /etc/nova/nova.conf DEFAULT notification_driver messaging
     openstack-config --set /etc/nova/nova.conf DEFAULT notify_on_state_change vm_and_task_state
