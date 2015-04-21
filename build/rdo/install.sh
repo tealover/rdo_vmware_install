@@ -58,7 +58,6 @@ function install_openstack() {
 
     modify_answerfile CONFIG_NEUTRON_INSTALL n
     modify_answerfile CONFIG_SWIFT_INSTALL n
-    modify_answerfile CONFIG_CEILOMETER_INSTALL n
     modify_answerfile CONFIG_NAGIOS_INSTALL n
     modify_answerfile CONFIG_CEILOMETER_INSTALL y
 
@@ -103,7 +102,6 @@ function post_install() {
     systemctl restart openstack-nova-conductor
     pkill -9 dnsmasq
     systemctl restart openstack-nova-network
-    systemctl restart openstack-nova-compute
 
     openstack-config --set /etc/nova/nova.conf DEFAULT notification_driver messaging
     openstack-config --set /etc/nova/nova.conf DEFAULT notify_on_state_change vm_and_task_state
