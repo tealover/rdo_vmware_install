@@ -129,6 +129,7 @@ function post_install() {
     systemctl restart openstack-ceilometer-compute
 
     # VMs can connect to internet
+    iptables -t nat -I POSTROUTING -s $FIXED_IP_RANGE ! -d $FIXED_IP_RANGE -j MASQUERADE
     echo "iptables -t nat -I POSTROUTING -s $FIXED_IP_RANGE ! -d $FIXED_IP_RANGE -j MASQUERADE" >> /etc/rc.local
     chmod +x /etc/rc.d/rc.local
 }
