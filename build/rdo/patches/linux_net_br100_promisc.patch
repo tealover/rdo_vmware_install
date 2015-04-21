@@ -1,10 +1,10 @@
---- linux_net.py        2015-05-12 03:00:40.419029701 +0800
-+++ linux_net.py.new    2015-05-12 03:02:04.260030718 +0800
-@@ -1555,6 +1555,8 @@
+--- linux_net.py	2015-02-12 00:28:46.000000000 +0800
++++ linux_net.py.new	2015-05-12 17:24:11.759010009 +0800
+@@ -1555,6 +1555,7 @@
              # bridge, which will either be the vlan interface, or a
              # physical NIC.
              _execute('ip', 'link', 'set', bridge, 'up', run_as_root=True)
 +            _execute('ip', 'link', 'set', bridge, 'promisc', 'on', run_as_root=True)
-
+ 
          if interface:
              msg = _('Adding interface %(interface)s to bridge %(bridge)s')
