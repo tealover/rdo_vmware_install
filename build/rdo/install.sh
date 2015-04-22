@@ -1,5 +1,7 @@
 #!/bin/bash
 
+HYPERVISOR=vmware
+
 VCENTER_HOST=172.16.71.201
 VCENTER_USER=root
 VCENTER_PASSWORD=vmware
@@ -7,8 +9,8 @@ GLANCE_DATACENTER=dc01
 VCENTER_CLUSTER=cluster01
 GLANCE_DATASTORE=os_datastore02
 GLANCE_IMAGE_PATH=/openstack_glance
-OPENSTACK_NIC=ens224
 
+#OPENSTACK_NIC=ens224
 FIXED_IP_RANGE="10.0.0.0/16"
 FLOAT_IP_RANGE="172.16.71.224/28"
 ADMIN_PASSWORD="admin"
@@ -61,12 +63,14 @@ function install_openstack() {
     modify_answerfile CONFIG_NAGIOS_INSTALL n
     modify_answerfile CONFIG_CEILOMETER_INSTALL y
 
-    modify_answerfile CONFIG_VMWARE_BACKEND y
-    modify_answerfile CONFIG_VCENTER_HOST $VCENTER_HOST
-    modify_answerfile CONFIG_VCENTER_USER $VCENTER_USER
-    modify_answerfile CONFIG_VCENTER_PASSWORD $VCENTER_PASSWORD
-    modify_answerfile CONFIG_VCENTER_CLUSTER_NAME $VCENTER_CLUSTER
-    modify_answerfile CONFIG_CINDER_BACKEND vmdk
+    if [ "$HYPERVISOR" = "vmware" ]; then
+        modify_answerfile CONFIG_VMWARE_BACKEND y
+        modify_answerfile CONFIG_VCENTER_HOST $VCENTER_HOST
+        modify_answerfile CONFIG_VCENTER_USER $VCENTER_USER
+        modify_answerfile CONFIG_VCENTER_PASSWORD $VCENTER_PASSWORD
+        modify_answerfile CONFIG_VCENTER_CLUSTER_NAME $VCENTER_CLUSTER
+        modify_answerfile CONFIG_CINDER_BACKEND vmdk
+    fi
 
     modify_answerfile CONFIG_NOVA_COMPUTE_PRIVIF $nic
     modify_answerfile CONFIG_NOVA_NETWORK_PRIVIF $nic
@@ -94,8 +98,10 @@ function install_openstack() {
 function post_install() {
     # nova
     openstack-config --set /etc/nova/nova.conf DEFAULT compute_monitors ComputeDriverCPUMonitor
-    if [ "$USE_VLAN" = "yes" ]; then
-        openstack-config --set /etc/nova/nova.conf vmware vlan_interface $VMWARE_VLAN_INTERFACE
+    if [ "$HYPERVISOR" = "vmware" ]; then
+        if [ "$USE_VLAN" = "yes" ]; then
+            openstack-config --set /etc/nova/nova.conf vmware vlan_interface $VMWARE_VLAN_INTERFACE
+        fi
     fi
     systemctl restart openstack-nova-compute
     systemctl restart openstack-nova-scheduler
@@ -116,25 +122,29 @@ function post_install() {
     # glance
     openstack-config --set /etc/glance/glance-api.conf DEFAULT notification_driver messaging
     openstack-config --set /etc/glance/glance-api.conf DEFAULT control_exchange glance
-    openstack-config --set /etc/glance/glance-api.conf DEFAULT default_store vsphere
-    openstack-config --set /etc/glance/glance-api.conf glance_store vmware_server_host $VCENTER_HOST
-    openstack-config --set /etc/glance/glance-api.conf glance_store vmware_server_username $VCENTER_USER
-    openstack-config --set /etc/glance/glance-api.conf glance_store vmware_server_password $VCENTER_PASSWORD
-    openstack-config --set /etc/glance/glance-api.conf glance_store vmware_datacenter_path $GLANCE_DATACENTER
-    openstack-config --set /etc/glance/glance-api.conf glance_store vmware_datastore_name $GLANCE_DATASTORE
-    openstack-config --set /etc/glance/glance-api.conf glance_store vmware_store_image_dir $GLANCE_IMAGE_PATH
-    openstack-config --set /etc/glance/glance-api.conf glance_store stores glance.store.vmware_datastore.Store
+    if [ "$HYPERVISOR" = "vmware" ]; then
+        openstack-config --set /etc/glance/glance-api.conf DEFAULT default_store vsphere
+        openstack-config --set /etc/glance/glance-api.conf glance_store vmware_server_host $VCENTER_HOST
+        openstack-config --set /etc/glance/glance-api.conf glance_store vmware_server_username $VCENTER_USER
+        openstack-config --set /etc/glance/glance-api.conf glance_store vmware_server_password $VCENTER_PASSWORD
+        openstack-config --set /etc/glance/glance-api.conf glance_store vmware_datacenter_path $GLANCE_DATACENTER
+        openstack-config --set /etc/glance/glance-api.conf glance_store vmware_datastore_name $GLANCE_DATASTORE
+        openstack-config --set /etc/glance/glance-api.conf glance_store vmware_store_image_dir $GLANCE_IMAGE_PATH
+        openstack-config --set /etc/glance/glance-api.conf glance_store stores glance.store.vmware_datastore.Store
+    fi
     systemctl restart openstack-glance-api
     systemctl restart openstack-glance-registry
 
     # ceilometer
-    openstack-config --set /etc/ceilometer/ceilometer.conf DEFAULT hypervisor_inspector vsphere
-    openstack-config --set /etc/ceilometer/ceilometer.conf vmware host_ip $VCENTER_HOST
-    openstack-config --set /etc/ceilometer/ceilometer.conf vmware host_username $VCENTER_USER
-    openstack-config --set /etc/ceilometer/ceilometer.conf vmware host_password $VCENTER_PASSWORD
-    systemctl restart openstack-ceilometer-central
-    systemctl restart openstack-ceilometer-collector
-    systemctl restart openstack-ceilometer-compute
+    if [ "$HYPERVISOR" = "vmware" ]; then
+        openstack-config --set /etc/ceilometer/ceilometer.conf DEFAULT hypervisor_inspector vsphere
+        openstack-config --set /etc/ceilometer/ceilometer.conf vmware host_ip $VCENTER_HOST
+        openstack-config --set /etc/ceilometer/ceilometer.conf vmware host_username $VCENTER_USER
+        openstack-config --set /etc/ceilometer/ceilometer.conf vmware host_password $VCENTER_PASSWORD
+        systemctl restart openstack-ceilometer-central
+        systemctl restart openstack-ceilometer-collector
+        systemctl restart openstack-ceilometer-compute
+    fi
 
     # VMs can connect to internet
     iptables -t nat -I POSTROUTING -s $FIXED_IP_RANGE ! -d $FIXED_IP_RANGE -j MASQUERADE
@@ -150,7 +160,11 @@ function apply_patches() {
 
 function import_image() {
     pushd ~/rdo >/dev/null
-    ./import_image.sh vmware       # Import demo image
+    if [ "$HYPERVISOR" = "vmware" ]; then
+        ./import_image.sh vmware    
+    else 
+        ./import_image.sh kvm
+    fi
     popd >/dev/null
 }
 
