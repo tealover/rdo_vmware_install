@@ -12,13 +12,15 @@ GLANCE_IMAGE_PATH=/openstack_glance
 
 #OPENSTACK_NIC=ens224
 FIXED_IP_RANGE="10.0.0.0/16"
-FLOAT_IP_RANGE="172.16.71.224/28"
+FLOAT_IP_RANGE="192.168.206.224/28"
 ADMIN_PASSWORD="admin"
 
-USE_VLAN="no"
+USE_VLAN="yes"
 VLAN_START=101
 VLAN_NUM=10
-VMWARE_VLAN_INTERFACE=vmnic1
+#VMWARE_VLAN_INTERFACE=vmnic1
+
+COMPUTE_HOSTS="192.168.206.131,192.168.206.132"
 
 dt=`date '+%Y%m%d-%H%M%S'`
 logfile="install_$dt.log"
@@ -62,6 +64,11 @@ function install_openstack() {
     modify_answerfile CONFIG_SWIFT_INSTALL n
     modify_answerfile CONFIG_NAGIOS_INSTALL n
     modify_answerfile CONFIG_CEILOMETER_INSTALL y
+
+    if [ -n $COMPUTE_HOSTS ]; then
+        modify_answerfile CONFIG_COMPUTE_HOSTS $COMPUTE_HOSTS
+        modify_answerfile CONFIG_NETWORK_HOSTS $COMPUTE_HOSTS
+    fi
 
     if [ "$HYPERVISOR" = "vmware" ]; then
         modify_answerfile CONFIG_VMWARE_BACKEND y
