@@ -12,15 +12,15 @@ GLANCE_IMAGE_PATH=/openstack_glance
 
 #OPENSTACK_NIC=ens224
 FIXED_IP_RANGE="10.0.0.0/16"
-FLOAT_IP_RANGE="192.168.206.224/28"
+FLOAT_IP_RANGE="172.16.71.224/28"
 ADMIN_PASSWORD="admin"
 
 USE_VLAN="yes"
 VLAN_START=101
 VLAN_NUM=10
-#VMWARE_VLAN_INTERFACE=vmnic1
+VMWARE_VLAN_INTERFACE=vmnic1
 
-COMPUTE_HOSTS="192.168.206.131,192.168.206.132"
+#COMPUTE_HOSTS="192.168.206.131,192.168.206.132"
 
 dt=`date '+%Y%m%d-%H%M%S'`
 logfile="install_$dt.log"
@@ -110,6 +110,10 @@ function post_install() {
             openstack-config --set /etc/nova/nova.conf vmware vlan_interface $VMWARE_VLAN_INTERFACE
         fi
     fi
+    if [ "$HYPERVISOR" = "kvm" ]; then
+        openstack-config --set /etc/nova/nova.conf libvirt virt_type kvm
+    fi
+
     systemctl restart openstack-nova-compute
     systemctl restart openstack-nova-scheduler
     systemctl restart openstack-nova-conductor
