@@ -67,6 +67,9 @@ DEVICE="$default_interface"
 DNS1=8.8.8.8
 EOF
 
+    echo $HOSTNAME > /etc/hostname
+    hostname $HOSTNAME
+
     systemctl restart network
 }
 
