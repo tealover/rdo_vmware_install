@@ -63,7 +63,7 @@ function install_openstack() {
     modify_answerfile CONFIG_NEUTRON_INSTALL n
     modify_answerfile CONFIG_SWIFT_INSTALL n
     modify_answerfile CONFIG_NAGIOS_INSTALL n
-    modify_answerfile CONFIG_CEILOMETER_INSTALL y
+    modify_answerfile CONFIG_CEILOMETER_INSTALL n
 
     if [ -n $COMPUTE_HOSTS ]; then
         modify_answerfile CONFIG_COMPUTE_HOSTS $COMPUTE_HOSTS
