@@ -147,15 +147,15 @@ function post_install() {
     systemctl restart openstack-glance-registry
 
     # ceilometer
-    if [ "$HYPERVISOR" = "vmware" ]; then
-        openstack-config --set /etc/ceilometer/ceilometer.conf DEFAULT hypervisor_inspector vsphere
-        openstack-config --set /etc/ceilometer/ceilometer.conf vmware host_ip $VCENTER_HOST
-        openstack-config --set /etc/ceilometer/ceilometer.conf vmware host_username $VCENTER_USER
-        openstack-config --set /etc/ceilometer/ceilometer.conf vmware host_password $VCENTER_PASSWORD
-        systemctl restart openstack-ceilometer-central
-        systemctl restart openstack-ceilometer-collector
-        systemctl restart openstack-ceilometer-compute
-    fi
+    #if [ "$HYPERVISOR" = "vmware" ]; then
+    #    openstack-config --set /etc/ceilometer/ceilometer.conf DEFAULT hypervisor_inspector vsphere
+    #    openstack-config --set /etc/ceilometer/ceilometer.conf vmware host_ip $VCENTER_HOST
+    #    openstack-config --set /etc/ceilometer/ceilometer.conf vmware host_username $VCENTER_USER
+    #    openstack-config --set /etc/ceilometer/ceilometer.conf vmware host_password $VCENTER_PASSWORD
+    #    systemctl restart openstack-ceilometer-central
+    #    systemctl restart openstack-ceilometer-collector
+    #    systemctl restart openstack-ceilometer-compute
+    #fi
 
     # VMs can connect to internet
     iptables -t nat -I POSTROUTING -s $FIXED_IP_RANGE ! -d $FIXED_IP_RANGE -j MASQUERADE
