@@ -4,6 +4,7 @@ CONTROLLER_HOST=172.16.71.204
 NEW_COMPUTE_HOST=172.16.71.205
 VMWARE_CLUSTER_NAME=cluster02
 FIXED_IP_RANGE="10.0.0.0/16"
+EXCLUDE_SERVERS=$CONTROLLER_HOST
 
 answerfile="mystack.txt"
 
@@ -12,7 +13,7 @@ function install_openstack() {
     sed -i "s/^CONFIG_COMPUTE_HOSTS.*$/&,$NEW_COMPUTE_HOST/" ${answerfile}_add_node
     sed -i "s/^CONFIG_NETWORK_HOSTS.*$/&,$NEW_COMPUTE_HOST/" ${answerfile}_add_node
     sed -i "s/^CONFIG_VCENTER_CLUSTER_NAME=.*/CONFIG_VCENTER_CLUSTER_NAME=$VMWARE_CLUSTER_NAME/" ${answerfile}_add_node
-    sed -i "s/^EXCLUDE_SERVERS=.*/EXCLUDE_SERVERS=$CONTROLLER_HOST/" ${answerfile}_add_node
+    sed -i "s/^EXCLUDE_SERVERS=.*/EXCLUDE_SERVERS=$EXCLUDE_SERVERS/" ${answerfile}_add_node
 
     packstack --answer-file=${answerfile}_add_node
 }
