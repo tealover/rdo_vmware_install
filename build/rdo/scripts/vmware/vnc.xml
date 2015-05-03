@@ -1,0 +1,26 @@
+<!-- FirewallRule for VNC Console -->
+<ConfigRoot>
+<service>
+<id>VNC</id>
+<rule id = '0000'>
+<direction>inbound</direction>
+<protocol>tcp</protocol>
+<porttype>dst</porttype>
+<port>
+<begin>5900</begin>
+<end>6010</end>
+</port>
+</rule>
+<rule id = '0001'>
+<direction>outbound</direction>
+<protocol>tcp</protocol>
+<porttype>dst</porttype>
+<port>
+<begin>0</begin>
+<end>65535</end>
+</port>
+</rule>
+<enabled>true</enabled>
+<required>false</required>
+</service>
+</ConfigRoot>
