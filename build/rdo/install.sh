@@ -4,17 +4,17 @@
 
 HYPERVISOR=vmware
 
-VCENTER_HOST=172.16.71.201
+VCENTER_HOST=192.168.206.140
 VCENTER_USER=root
 VCENTER_PASSWORD=vmware
 GLANCE_DATACENTER=dc01
 VCENTER_CLUSTER=cluster01
-GLANCE_DATASTORE=os_datastore02
+GLANCE_DATASTORE=share01
 GLANCE_IMAGE_PATH=/openstack_glance
 
 #OPENSTACK_NIC=ens224
 FIXED_IP_RANGE="10.0.0.0/16"
-FLOAT_IP_RANGE="172.16.71.224/28"
+FLOAT_IP_RANGE="192.168.206.224/28"
 ADMIN_PASSWORD="admin"
 
 USE_VLAN="yes"
@@ -22,7 +22,7 @@ VLAN_START=101
 VLAN_NUM=10
 VMWARE_VLAN_INTERFACE=vmnic0
 
-COMPUTE_HOSTS="172.16.71.204"
+COMPUTE_HOSTS="192.168.206.146"
 
 dt=`date '+%Y%m%d-%H%M%S'`
 logfile="install_$dt.log"
@@ -58,9 +58,6 @@ function install_openstack() {
     else
         nic=`ifconfig | grep flags | grep -v lo: | awk -F: '{print $1}'`
     fi
-
-    sed -i "/  pidfilepath => .*/d" /usr/lib/python2.7/site-packages/packstack/puppet/templates/mongodb.pp
-    sed -i "s#config     => \$config_file,#config     => \$config_file,\n  pidfilepath => '/var/run/mongodb/mongodb.pid',#" /usr/lib/python2.7/site-packages/packstack/puppet/templates/mongodb.pp
 
     modify_answerfile CONFIG_NEUTRON_INSTALL n
     modify_answerfile CONFIG_SWIFT_INSTALL n
@@ -138,7 +135,7 @@ function post_install() {
     openstack-config --set /etc/glance/glance-api.conf DEFAULT notification_driver messaging
     openstack-config --set /etc/glance/glance-api.conf DEFAULT control_exchange glance
     if [ "$HYPERVISOR" = "vmware" ]; then
-        openstack-config --set /etc/glance/glance-api.conf DEFAULT default_store vsphere
+        openstack-config --set /etc/glance/glance-api.conf glance_store default_store vsphere
         openstack-config --set /etc/glance/glance-api.conf glance_store vmware_server_host $VCENTER_HOST
         openstack-config --set /etc/glance/glance-api.conf glance_store vmware_server_username $VCENTER_USER
         openstack-config --set /etc/glance/glance-api.conf glance_store vmware_server_password $VCENTER_PASSWORD
@@ -172,8 +169,8 @@ function apply_patches() {
     pkill -9 dnsmasq
     systemctl restart openstack-nova-network
 
-    patch -p1 /usr/lib/python2.7/site-packages/nova/scheduler/filters/aggregate_multitenancy_isolation.py < ~/rdo/patches/scheduler_filter_aggregate.patch
-    systemctl restart openstack-nova-scheduler
+    #patch -p1 /usr/lib/python2.7/site-packages/nova/scheduler/filters/aggregate_multitenancy_isolation.py < ~/rdo/patches/scheduler_filter_aggregate.patch
+    #systemctl restart openstack-nova-scheduler
 }
 
 function import_image() {
