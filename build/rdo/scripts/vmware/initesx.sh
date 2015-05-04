@@ -23,11 +23,13 @@ function init_network() {
 function init_storage() {
     for i in $NFS_SHARE; do
         vol=`basename $i`
-        exec_cmd storage nfs add --host $NFS_SERVER_IP --share /mnt/vg01/lv01/$i --volume-name=$vol
+        exec_cmd storage nfs add --host $NFS_SERVER_IP --share $i --volume-name=$vol
         echo $i
     done
     local_datastore=`esxcli -s $VCENTER_IP -u $USERNAME -p $PASSWORD -h $ESX_IP storage filesystem list | grep VMFS-5 | cut -f1 -d ' '`
-    exec_cmd storage filesystem unmount -p $local_datastore
+    if [ -n $local_datastore ]; then
+        exec_cmd storage filesystem unmount -p $local_datastore
+    fi
 }
 
 function enable_vnc() {
