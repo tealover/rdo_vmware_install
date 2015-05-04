@@ -1,8 +1,8 @@
---- /root/aggregate_multitenancy_isolation.py   2015-05-19 21:22:53.807438218 +0800
-+++ aggregate_multitenancy_isolation.py 2015-05-19 21:20:42.516429986 +0800
-@@ -43,7 +43,7 @@
-                                                      key="filter_tenant_id")
-
+--- aggregate_multitenancy_isolation.py.bak	2015-05-29 22:34:47.559034948 +0800
++++ aggregate_multitenancy_isolation.py	2015-05-29 22:35:17.398036172 +0800
+@@ -44,7 +44,7 @@
+                                                         key="filter_tenant_id")
+ 
          if metadata != {}:
 -            if tenant_id not in metadata["filter_tenant_id"]:
 +            if tenant_id not in list(metadata["filter_tenant_id"])[0]:
