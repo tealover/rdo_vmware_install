@@ -32,11 +32,6 @@ function init_storage() {
     fi
 }
 
-function enable_vnc() {
-    scp vnc.xml root@$ESX_IP:/etc/vmware/firewall
-    exec_cmd network firewall refresh
-}
-
 if [ -z $1 ]; then
     echo "Usage: $0 <esx_host_ip>"
     exit 
@@ -45,4 +40,3 @@ fi
 ESX_IP=$1
 init_network
 init_storage
-enable_vnc

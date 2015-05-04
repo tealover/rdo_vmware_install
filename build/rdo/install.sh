@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# OpenStack version: kilo
+
 HYPERVISOR=vmware
 
 VCENTER_HOST=172.16.71.201
