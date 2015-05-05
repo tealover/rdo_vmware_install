@@ -65,6 +65,8 @@ NETMASK=$NETMASK
 GATEWAY=$GATEWAY
 DEVICE="$default_interface" 
 ONBOOT=yes
+EOF
+    cat >> /etc/sysconfig/network <<EOF
 DNS1=8.8.8.8
 EOF
 
