@@ -9,6 +9,10 @@ VLAN_RANGE_END=110
 NFS_SERVER_IP=192.168.206.147
 NFS_SHARE="/mnt/vg01/vol01/share01 /mnt/vg01/vol02/share02"
 
+function add_host_to_vcenter() {
+     /usr/lib/vmware-vcli/apps/host/hostops.pl --server $VCENTER_IP --username $USERNAME --password $PASSWORD --target_host $ESX_IP --operation addhost --cluster cluster01 --target_username root --target_password abcd1234
+}
+
 function exec_cmd() {
     esxcli -s $VCENTER_IP -u $USERNAME -p $PASSWORD -h $ESX_IP $@
 }
@@ -32,17 +36,12 @@ function init_storage() {
     fi
 }
 
-function enable_vnc() {
-    scp vnc.xml root@$ESX_IP:/etc/vmware/firewall
-    exec_cmd network firewall refresh
-}
-
 if [ -z $1 ]; then
     echo "Usage: $0 <esx_host_ip>"
     exit 
 fi
 
 ESX_IP=$1
+add_host_to_vcenter
 init_network
 init_storage
-enable_vnc
