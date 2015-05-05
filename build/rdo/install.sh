@@ -172,6 +172,9 @@ function apply_patches() {
 
     patch -p1 /usr/lib/python2.7/site-packages/nova/scheduler/filters/aggregate_multitenancy_isolation.py < ~/rdo/patches/scheduler_filter_aggregate.patch
     systemctl restart openstack-nova-scheduler
+
+    # Fix vmware client timeout error, restart glance-api every 30 minutes
+    echo "*/30 * * * * systemctl restart openstack-glance-api" | crontab -
 }
 
 function import_image() {
