@@ -169,8 +169,11 @@ function apply_patches() {
     pkill -9 dnsmasq
     systemctl restart openstack-nova-network
 
-    #patch -p1 /usr/lib/python2.7/site-packages/nova/scheduler/filters/aggregate_multitenancy_isolation.py < ~/rdo/patches/scheduler_filter_aggregate.patch
-    #systemctl restart openstack-nova-scheduler
+    patch -p1 /usr/lib/python2.7/site-packages/nova/scheduler/filters/aggregate_multitenancy_isolation.py < ~/rdo/patches/scheduler_filter_aggregate.patch
+    systemctl restart openstack-nova-scheduler
+
+    patch -p1 /usr/share/openstack-dashboard/openstack_dashboard/settings.py < ~/rdo/patches/kilo_horizon_authen.patch
+    systemctl restart httpd
 }
 
 function import_image() {
