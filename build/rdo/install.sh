@@ -105,6 +105,7 @@ function post_install() {
     # nova
     filters=`openstack-config --get /etc/nova/nova.conf DEFAULT scheduler_default_filters`
     openstack-config --set /etc/nova/nova.conf DEFAULT scheduler_default_filters "AggregateMultiTenancyIsolation,$filters"
+    openstack-config --set /etc/nova/nova.conf DEFAULT allow_resize_to_same_host true 
 
     if [ "$HYPERVISOR" = "vmware" ]; then
         if [ "$USE_VLAN" = "yes" ]; then
