@@ -46,6 +46,9 @@ function modify_answerfile() {
 
 function install_openstack() {
     yum install -y openstack-packstack | tee -a $logfile 
+ 
+    # Make sure installer not connect to internet
+    sed -i "s#\$repos_ensure.*#\$repos_ensure = false#" /usr/share/openstack-puppet/modules/rabbitmq/manifests/params.pp
     
     pushd ~/rdo >/dev/null
     if [ ! -e $answerfile ]; then
