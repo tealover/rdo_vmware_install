@@ -126,6 +126,7 @@ function post_install() {
         mysql <<EOF
 use nova;
 UPDATE networks SET share_address=1;
+exit
 EOF
     fi
 
