@@ -16,6 +16,7 @@ GLANCE_IMAGE_PATH=/openstack_glance
 FIXED_IP_RANGE="10.0.0.0/16"
 FLOAT_IP_RANGE="192.168.206.224/28"
 ADMIN_PASSWORD="admin"
+DNS_SERVER=8.8.8.8
 
 USE_VLAN="yes"
 VLAN_START=101
@@ -109,6 +110,7 @@ function post_install() {
     filters=`openstack-config --get /etc/nova/nova.conf DEFAULT scheduler_default_filters`
     openstack-config --set /etc/nova/nova.conf DEFAULT scheduler_default_filters "AggregateMultiTenancyIsolation,$filters"
     openstack-config --set /etc/nova/nova.conf DEFAULT allow_resize_to_same_host true 
+    openstack-config --set /etc/nova/nova.conf DEFAULT dns_server $DNS_SERVER
 
     if [ "$HYPERVISOR" = "vmware" ]; then
         if [ "$USE_VLAN" = "yes" ]; then
