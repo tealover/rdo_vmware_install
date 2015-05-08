@@ -16,7 +16,6 @@ GLANCE_IMAGE_PATH=/openstack_glance
 FIXED_IP_RANGE="10.0.0.0/16"
 FLOAT_IP_RANGE="192.168.206.224/28"
 ADMIN_PASSWORD="admin"
-DNS_SERVER=8.8.8.8
 
 USE_VLAN="yes"
 VLAN_START=101
@@ -24,6 +23,8 @@ VLAN_NUM=10
 VMWARE_VLAN_INTERFACE=vmnic0
 
 COMPUTE_HOSTS="192.168.206.146"
+
+USE_PHYSICAL_NETWORK="yes"
 
 dt=`date '+%Y%m%d-%H%M%S'`
 logfile="install_$dt.log"
@@ -110,15 +111,21 @@ function post_install() {
     filters=`openstack-config --get /etc/nova/nova.conf DEFAULT scheduler_default_filters`
     openstack-config --set /etc/nova/nova.conf DEFAULT scheduler_default_filters "AggregateMultiTenancyIsolation,$filters"
     openstack-config --set /etc/nova/nova.conf DEFAULT allow_resize_to_same_host true 
-    openstack-config --set /etc/nova/nova.conf DEFAULT dns_server $DNS_SERVER
 
     if [ "$HYPERVISOR" = "vmware" ]; then
         if [ "$USE_VLAN" = "yes" ]; then
             openstack-config --set /etc/nova/nova.conf vmware vlan_interface $VMWARE_VLAN_INTERFACE
         fi
     fi
+
     if [ "$HYPERVISOR" = "kvm" ]; then
         openstack-config --set /etc/nova/nova.conf libvirt virt_type kvm
+    fi
+
+    if [ "$USE_PHYSICAL_NETWORK" = "yes" ]; then
+        mysql <<EOF
+UPDATE networks SET share_address=1;
+EOF
     fi
 
     systemctl restart openstack-nova-compute
