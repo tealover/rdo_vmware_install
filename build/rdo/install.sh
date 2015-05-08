@@ -124,6 +124,7 @@ function post_install() {
 
     if [ "$USE_PHYSICAL_NETWORK" = "yes" ]; then
         mysql <<EOF
+use nova;
 UPDATE networks SET share_address=1;
 EOF
     fi
