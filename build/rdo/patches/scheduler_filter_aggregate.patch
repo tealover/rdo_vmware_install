@@ -1,0 +1,11 @@
+--- /root/aggregate_multitenancy_isolation.py   2015-05-19 21:22:53.807438218 +0800
++++ aggregate_multitenancy_isolation.py 2015-05-19 21:20:42.516429986 +0800
+@@ -43,7 +43,7 @@
+                                                      key="filter_tenant_id")
+
+         if metadata != {}:
+-            if tenant_id not in metadata["filter_tenant_id"]:
++            if tenant_id not in list(metadata["filter_tenant_id"])[0]:
+                 LOG.debug("%s fails tenant id on aggregate", host_state)
+                 return False
+         return True

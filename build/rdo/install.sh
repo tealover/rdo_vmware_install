@@ -104,7 +104,9 @@ function install_openstack() {
 # Modify openstack configurations
 function post_install() {
     # nova
-    openstack-config --set /etc/nova/nova.conf DEFAULT compute_monitors ComputeDriverCPUMonitor
+    filters=`openstack-config --get /etc/nova/nova.conf DEFAULT scheduler_default_filters`
+    openstack-config --set /etc/nova/nova.conf DEFAULT scheduler_default_filters "AggregateMultiTenancyIsolation,$filters"
+
     if [ "$HYPERVISOR" = "vmware" ]; then
         if [ "$USE_VLAN" = "yes" ]; then
             openstack-config --set /etc/nova/nova.conf vmware vlan_interface $VMWARE_VLAN_INTERFACE
@@ -167,6 +169,9 @@ function apply_patches() {
     patch -p1 /usr/lib/python2.7/site-packages/nova/network/linux_net.py < ~/rdo/patches/linux_net_br100_promisc.patch
     pkill -9 dnsmasq
     systemctl restart openstack-nova-network
+
+    patch -p1 /usr/lib/python2.7/site-packages/nova/scheduler/filters/aggregate_multitenancy_isolation.py < ~/rdo/patches/scheduler_filter_aggregate.patch
+    systemctl restart openstack-nova-scheduler
 }
 
 function import_image() {
