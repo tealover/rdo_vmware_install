@@ -89,9 +89,14 @@ function post_install() {
     systemctl restart openstack-glance-api
     systemctl restart openstack-glance-registry
 
+    # neutron
+    openstack-config --set /etc/neutron/plugin.ini ml2 type_drivers "flat,vxlan"
+    systemctl restart openvswitch
+    systemctl restart neutron-openvswitch-agent
+
     # VMs can connect to internet
     #iptables -t nat -I POSTROUTING -s $FIXED_IP_RANGE ! -d $FIXED_IP_RANGE -j MASQUERADE
-    service iptables save
+    #service iptables save
 }
 
 function apply_patches() {
