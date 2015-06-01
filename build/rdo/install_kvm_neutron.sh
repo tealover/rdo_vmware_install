@@ -7,8 +7,8 @@ HYPERVISOR=kvm
 ADMIN_PASSWORD="admin"
 DNS_SERVER="192.168.206.2"
 
-USE_VLAN="yes"
 COMPUTE_HOSTS="192.168.206.139"
+FLOATING_RANGE="192.168.206.224/28"
 
 dt=`date '+%Y%m%d-%H%M%S'`
 logfile="install_$dt.log"
@@ -47,7 +47,10 @@ function install_openstack() {
     modify_answerfile CONFIG_NAGIOS_INSTALL n
     modify_answerfile CONFIG_CEILOMETER_INSTALL n
     modify_answerfile CONFIG_HEAT_INSTALL y
-    modify_answerfile CONFIG_PROVISION_DEMO n
+
+    modify_answerfile CONFIG_PROVISION_DEMO y
+    modify_answerfile CONFIG_PROVISION_DEMO_FLOATRANGE $FLOATING_RANGE
+    modify_answerfile CONFIG_PROVISION_TEMPEST_FLOATRANGE $FLOATING_RANGE
 
     modify_answerfile CONFIG_KEYSTONE_ADMIN_PW $ADMIN_PASSWORD
     modify_answerfile CONFIG_PROVISION_DEMO y
