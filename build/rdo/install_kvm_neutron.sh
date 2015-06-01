@@ -47,13 +47,8 @@ function install_openstack() {
     modify_answerfile CONFIG_NAGIOS_INSTALL n
     modify_answerfile CONFIG_CEILOMETER_INSTALL n
     modify_answerfile CONFIG_HEAT_INSTALL y
-
-    modify_answerfile CONFIG_PROVISION_DEMO y
-    modify_answerfile CONFIG_PROVISION_DEMO_FLOATRANGE $FLOATING_RANGE
-    modify_answerfile CONFIG_PROVISION_TEMPEST_FLOATRANGE $FLOATING_RANGE
-
+    modify_answerfile CONFIG_PROVISION_DEMO n
     modify_answerfile CONFIG_KEYSTONE_ADMIN_PW $ADMIN_PASSWORD
-    modify_answerfile CONFIG_PROVISION_DEMO y
 
     packstack --answer-file=$answerfile
 
