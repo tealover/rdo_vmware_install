@@ -93,6 +93,7 @@ function post_install() {
     openstack-config --set /etc/neutron/plugin.ini ml2 type_drivers "flat,vxlan"
     systemctl restart openvswitch
     systemctl restart neutron-openvswitch-agent
+    systemctl restart neutron-server
 
     # VMs can connect to internet
     #iptables -t nat -I POSTROUTING -s $FIXED_IP_RANGE ! -d $FIXED_IP_RANGE -j MASQUERADE
