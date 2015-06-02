@@ -9,6 +9,8 @@ DNS_SERVER="192.168.206.2"
 
 COMPUTE_HOSTS="192.168.206.139"
 FLOATING_RANGE="192.168.206.224/28"
+INTERFACE=eno16777736
+
 
 dt=`date '+%Y%m%d-%H%M%S'`
 logfile="install_$dt.log"
@@ -53,6 +55,8 @@ function install_openstack() {
     modify_answerfile CONFIG_NEUTRON_ML2_TYPE_DRIVERS "flat,vlan"
     modify_answerfile CONFIG_NEUTRON_ML2_TENANT_NETWORK_TYPES ""
     modify_answerfile CONFIG_NEUTRON_ML2_MECHANISM_DRIVERS linuxbridge
+    modify_answerfile CONFIG_NEUTRON_L2_AGENT linuxbridge
+    modify_answerfile CONFIG_NEUTRON_LB_INTERFACE_MAPPINGS external:$INTERFACE
 
     packstack --answer-file=$answerfile
 
@@ -110,7 +114,7 @@ function post_install() {
     openstack-config --set /etc/neutron/plugin.ini securitygroup enable_ipset True
 
     openstack-config --set /etc/neutron/plugin.ini linux_bridge physical_interface_mappings \
-        external:EXTERNAL_NETWORK_INTERFACE
+        external:$INTERFACE
 
     openstack-config --set /etc/neutron/dhcp_agent.ini DEFAULT verbose True
     openstack-config --set /etc/neutron/dhcp_agent.ini DEFAULT interface_driver \
@@ -119,6 +123,7 @@ function post_install() {
     openstack-config --set /etc/neutron/dhcp_agent.ini DEFAULT dhcp_delete_namespaces True
 
     systemctl restart neutron-linuxbridge-agent
+    systemctl restart neutron-dhcp-agent
     systemctl restart neutron-server
 }
 
