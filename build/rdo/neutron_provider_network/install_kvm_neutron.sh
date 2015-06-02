@@ -50,6 +50,10 @@ function install_openstack() {
     modify_answerfile CONFIG_PROVISION_DEMO n
     modify_answerfile CONFIG_KEYSTONE_ADMIN_PW $ADMIN_PASSWORD
 
+    modify_answerfile CONFIG_NEUTRON_ML2_TYPE_DRIVERS "flat,vlan"
+    modify_answerfile CONFIG_NEUTRON_ML2_TENANT_NETWORK_TYPES ""
+    modify_answerfile CONFIG_NEUTRON_ML2_MECHANISM_DRIVERS linuxbridge
+
     packstack --answer-file=$answerfile
 
     echo ". ~/keystonerc_admin" > ~/.bash_profile

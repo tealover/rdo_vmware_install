@@ -94,10 +94,6 @@ function post_install() {
     systemctl restart openvswitch
     systemctl restart neutron-openvswitch-agent
     systemctl restart neutron-server
-
-    # VMs can connect to internet
-    #iptables -t nat -I POSTROUTING -s $FIXED_IP_RANGE ! -d $FIXED_IP_RANGE -j MASQUERADE
-    #service iptables save
 }
 
 function apply_patches() {
