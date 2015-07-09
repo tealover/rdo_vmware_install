@@ -1,0 +1,12 @@
+@@ -150,6 +150,10 @@ def allocate_floating_ip(self, context, pool=None):
+         """Adds (allocate) floating ip to a project from a pool."""
+         raise NotImplementedError()
+ 
++    def allocate_floating_ip(self, context, project_id=None,  pool=None):
++        """Adds (allocate) floating ip to a project from a pool. admin role can allocate to not specific tenant"""
++        raise NotImplementedError()
++
+     def release_floating_ip(self, context, address,
+                             affect_auto_assigned=False):
+         """Removes (deallocates) a floating ip with address from a project."""
+
