@@ -18,13 +18,13 @@ do
    username=${arr[1]}
    password=${arr[2]}
    echo "begin to open vnc port for $address..."
-   sshpass -p $password ssh $username@$address "cd /etc/vmware/firewall; if [ -e vnc.xml ]; then mv vnc.xml vnc.xml.bak; fi; exit"
+   sshpass -p $password ssh -o StrictHostKeyChecking=no $username@$address "cd /etc/vmware/firewall; if [ -e vnc.xml ]; then mv vnc.xml vnc.xml.bak; fi; exit"
    sshpass -p $password scp $vnc_file $username@$address:/etc/vmware/firewall/
-   result=`sshpass -p $password ssh $username@$address "chmod -R 444 /etc/vmware/firewall/vnc.xml; esxcli network firewall refresh; esxcli network firewall ruleset list | grep VNC; exit 0"`
+   result=`sshpass -p $password ssh -o StrictHostKeyChecking=no $username@$address "chmod -R 444 /etc/vmware/firewall/vnc.xml; esxcli network firewall refresh; esxcli network firewall ruleset list | grep VNC; exit 0"`
    if [ `echo $result|awk '{print $2}'` = "true" ]; then 
       echo "succeed to open esxi host vnc port for $address"
    else
       echo "failed to open esxi host vnc port for $address" 
    fi
-   echo "end to vnc port operation"
+   echo "end to vnc port operation for $address"
 done
