@@ -3,6 +3,8 @@
 
 set -e;
 
+yum install -y sshpass
+
 cur_dir=$(cd `dirname $0`; pwd)
 hosts_file=$cur_dir/esxi_hosts/hosts.cfg
 vnc_file=$cur_dir/esxi_hosts//vnc.xml
