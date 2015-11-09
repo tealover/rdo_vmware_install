@@ -1,0 +1,57 @@
+@@ -133,6 +133,33 @@ def get_vswitch_for_vlan_interface(session, vlan_interface, cluster=None):
+             pass
+ 
+ 
++def get_vswitch_for_vlan_interfaces(session, vlan_interfaces, cluster=None):
++    """Gets the vswitch associated with the physical network adapter
++    with the name supplied.
++    """
++    # Get the list of vSwicthes on the Host System
++    host_mor = vm_util.get_host_ref(session, cluster)
++    vswitches_ret = session._call_method(vim_util,
++                "get_dynamic_property", host_mor,
++                "HostSystem", "config.network.vswitch")
++    # Meaning there are no vSwitches on the host. Shouldn't be the case,
++    # but just doing code check
++    if not vswitches_ret:
++        return
++    vswitches = vswitches_ret.HostVirtualSwitch
++    # Get the vSwitch associated with the network adapter
++    for elem in vswitches:
++        try:
++            for nic_elem in elem.pnic:
++                for interface in vlan_interfaces:
++                    if str(nic_elem).split('-')[-1].find(interface) != -1:
++                        return elem.name
++        # Catching Attribute error as a vSwitch may not be associated with a
++        # physical NIC.
++        except AttributeError:
++            pass
++
++
+ def check_if_vlan_interface_exists(session, vlan_interface, cluster=None):
+     """Checks if the vlan_interface exists on the esx host."""
+     host_mor = vm_util.get_host_ref(session, cluster)
+@@ -149,6 +176,22 @@ def check_if_vlan_interface_exists(session, vlan_interface, cluster=None):
+     return False
+ 
+ 
++def check_if_vlan_interfaces_exists(session, vlan_interfaces, cluster=None):
++    """Checks if the vlan_interfaces exists on the esx host."""
++    host_mor = vm_util.get_host_ref(session, cluster)
++    physical_nics_ret = session._call_method(vim_util,
++                "get_dynamic_property", host_mor,
++                "HostSystem", "config.network.pnic")
++    # Meaning there are no physical nics on the host
++    if not physical_nics_ret:
++        return False
++    physical_nics = physical_nics_ret.PhysicalNic
++    for pnic in physical_nics:
++        if pnic.device in vlan_interfaces:
++            return True
++    return False
++
++
+ def get_vlanid_and_vswitch_for_portgroup(session, pg_name, cluster=None):
+     """Get the vlan id and vswicth associated with the port group."""
+     host_mor = vm_util.get_host_ref(session, cluster)
