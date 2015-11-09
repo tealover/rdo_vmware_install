@@ -1,6 +1,4 @@
---- linux_net.py	2015-06-11 23:23:44.407012782 +0800
-+++ linux_net.py.new	2015-06-11 23:24:05.175013034 +0800
-@@ -1011,9 +1011,9 @@
+@@ -1011,9 +1011,9 @@ def get_dhcp_opts(context, network_ref, fixedips):
      # NOTE(vish): if we are in multi-host mode and we are not sharing
      #             addresses, then we actually need to hand out the
      #             dhcp server address as the gateway.
@@ -13,7 +11,16 @@
      hosts = []
      if CONF.use_single_default_gateway:
          for fixedip in fixedips:
-@@ -1608,6 +1608,7 @@
+@@ -1136,6 +1136,8 @@ def restart_dhcp(context, dev, network_ref, fixedips):
+            '--dhcp-hostsfile=%s' % _dhcp_file(dev, 'conf'),
+            '--dhcp-script=%s' % CONF.dhcpbridge,
+            '--no-hosts',
++           '--cache-size=0',
++           '--no-negcache',
+            '--leasefile-ro']
+ 
+     # dnsmasq currently gives an error for an empty domain,
+@@ -1608,6 +1610,7 @@ def ensure_bridge(bridge, interface, net_attrs=None, gateway=True,
              # bridge, which will either be the vlan interface, or a
              # physical NIC.
              _execute('ip', 'link', 'set', bridge, 'up', run_as_root=True)
